@@ -3,6 +3,7 @@ import { Navbar } from "../components/Navbar";
 import { TaskCard } from "../components/TaskCard";
 import { TaskForm } from "../components/TaskForm";
 import { taskService } from "../services/task.service";
+import { useRealTimeTasks } from "../hooks/useRealTimeTasks";
 
 export function TasksPage() {
   const [tasks, setTasks] = useState([]);
@@ -13,6 +14,8 @@ export function TasksPage() {
   const [editTarget, setEditTarget] = useState(null);
 
   const [filter, setFilter] = useState("ALL");
+
+  useRealTimeTasks(setTasks);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);

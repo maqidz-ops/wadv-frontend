@@ -69,7 +69,12 @@ api.interceptors.response.use(
         const newToken = data.data.accessToken;
 
         TokenStore.setAccessToken(newToken);
-
+        window.dispatchEvent(
+          new CustomEvent("tokenRefreshed", {
+            detail: { accessToken: newToken },
+          })
+        );
+        
         processQueue(null, newToken);
 
         orig.headers.Authorization = `Bearer ${newToken}`;
