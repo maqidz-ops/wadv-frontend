@@ -41,6 +41,20 @@ export function useRealTimeTasks(setTasks) {
       );
     };
 
+    const onTagUpdated = ({ taskId, tags }) => {
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, tags } : t
+        )
+      );
+
+      addToast({
+        type: "INFO",
+        title: "Tag Diperbarui",
+        message: `Tag pada task telah diperbarui.`,
+      });
+    };
+
     const onNotification = (notif) => {
       addToast(notif);
     };
@@ -48,6 +62,7 @@ export function useRealTimeTasks(setTasks) {
     socket.on("task:created", onTaskCreated);
     socket.on("task:updated", onTaskUpdated);
     socket.on("task:deleted", onTaskDeleted);
+    socket.on("tag:updated", onTagUpdated);
     socket.on("notification", onNotification);
 
     return () => {
@@ -62,6 +77,10 @@ export function useRealTimeTasks(setTasks) {
       socket.off(
         "task:deleted",
         onTaskDeleted
+      );
+      socket.off(
+        "tag:updated",
+        onTagUpdated
       );
       socket.off(
         "notification",

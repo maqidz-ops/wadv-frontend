@@ -39,4 +39,14 @@ export const taskService = {
   remove: async (id) => {
     await api.delete(`/tasks/${id}`);
   },
+
+  addTag: async (taskId, tagName) => {
+    const { data } = await api.post(`/tasks/${taskId}/tags`, { name: tagName });
+    return data.data;
+  },
+
+  removeTag: async (taskId, tagName) => {
+    const { data } = await api.delete(`/tasks/${taskId}/tags/${encodeURIComponent(tagName)}`);
+    return data.data;
+  },
 };

@@ -37,6 +37,19 @@ export function TaskCard({ task, onEdit, onDelete }) {
         {task.description && (
           <p className="text-slate-500 text-sm mb-4 line-clamp-3 leading-relaxed">{task.description}</p>
         )}
+
+        {task.tags && task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {task.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-xs font-medium px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-200"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-100">

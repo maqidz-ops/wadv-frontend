@@ -1,9 +1,14 @@
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
-import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Tag, Plus } from "lucide-react";
+
+const TAG_COLORS = ["bg-indigo-50 text-indigo-600 border-indigo-200", "bg-emerald-50 text-emerald-600 border-emerald-200", "bg-amber-50 text-amber-600 border-amber-200", "bg-rose-50 text-rose-600 border-rose-200", "bg-cyan-50 text-cyan-600 border-cyan-200", "bg-purple-50 text-purple-600 border-purple-200"];
 
 export function TaskForm({ onSubmit, onCancel, initialData = null }) {
   const isEdit = !!initialData;
+
+  const [tags, setTags] = useState(() => initialData?.tags || []);
+  const [tagInput, setTagInput] = useState("");
 
   // Pastikan dueDate dari backend (ISO string) dipotong menjadi YYYY-MM-DD untuk <input type="date">
   const processedInitialData = initialData ? {
@@ -23,8 +28,33 @@ export function TaskForm({ onSubmit, onCancel, initialData = null }) {
   });
 
   useEffect(() => {
-    if (processedInitialData) reset(processedInitialData);
+    if (processedInitialData) {
+      reset(processedInitialData);
+    }
   }, [initialData, reset]);
+
+  const addTag = () => {
+    const trimmed = tagInput.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags((prev) => [...prev, trimmed]);
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tagToRemove) => {
+    setTags((prev) => prev.filter((t) => t !== tagToRemove));
+  };
+
+  const handleTagKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const handleFormSubmit = (data) => {
+    onSubmit({ ...data, tags });
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
@@ -43,7 +73,7 @@ export function TaskForm({ onSubmit, onCancel, initialData = null }) {
         </div>
 
         <div className="p-6 overflow-y-auto">
-          <form id="task-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form id="task-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Judul *</label>
               <input
@@ -97,6 +127,48 @@ export function TaskForm({ onSubmit, onCancel, initialData = null }) {
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none text-slate-800"
                 {...register("dueDate")}
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Label / Tag</label>
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder="Ketik tag lalu Enter..."
+                  className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none text-slate-800 placeholder:text-slate-400 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  disabled={!tagInput.trim()}
+                  className="px-3 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:bg-slate-300 text-white rounded-lg transition-colors"
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {tags.map((tag, i) => (
+                    <span
+                      key={tag}
+                      className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                    >
+                      <Tag size={12} />
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="hover:text-slate-700 transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </form>
         </div>
